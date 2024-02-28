@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-landmarks_array = np.load('test_landmarks.npy')
-labels_array = np.load('test_labels.npy')
+landmarks_array = np.load('Arrays/test_landmarks.npy')
+labels_array = np.load('Arrays/test_labels.npy')
 
 print(landmarks_array.shape)
 

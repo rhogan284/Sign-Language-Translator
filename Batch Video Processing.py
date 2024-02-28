@@ -6,14 +6,14 @@ import json
 import pandas as pd
 from multiprocessing import pool
 
-VIDEO_FOLDER = 'videos'
-CSV_FILE = 'video_ids_per_gloss.csv'
+VIDEO_FOLDER = 'Sign Language Videos'
+CSV_FILE = 'CSVs and JSONs/video_ids_per_gloss.csv'
 NUM_VIDEOS_TO_PROCESS = 10
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
-all_videos_landmarks = [] 
+all_videos_landmarks = []
 all_labels = []
 
 for video_file in np.random.choice(os.listdir(VIDEO_FOLDER), NUM_VIDEOS_TO_PROCESS, replace=False):
@@ -79,7 +79,7 @@ all_labels_array = np.array(all_labels)
 
 print(all_landmarks_array.shape)
 
-# np.save('10_landmarks.npy', all_landmarks_array)
-# np.save('10_labels.npy', all_labels_array)
+np.save('Arrays/10_landmarks.npy', all_landmarks_array)
+np.save('Arrays/10_labels.npy', all_labels_array)
 
-print("Processing completed for 10 videos.")
+print("Processing completed for 10 Sign Language Videos.")

@@ -2,13 +2,13 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-video_path = 'videos/18290.mp4'
+video_path = 'Sign Language Videos/18290.mp4'
 cap = cv2.VideoCapture(video_path)
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
-all_landmarks = []  # List to store all landmark data
+all_landmarks = []
 
 with mp_hands.Hands(
         static_image_mode=False,
@@ -45,6 +45,6 @@ with mp_hands.Hands(
 cap.release()
 cv2.destroyAllWindows()
 
-landmarks_array = np.stack(list(all_landmarks))  # Convert to list and then stack
+landmarks_array = np.stack(list(all_landmarks))
 print(landmarks_array.shape)
-np.save('hand_landmarks.npy', landmarks_array)
+np.save('Arrays/hand_landmarks.npy', landmarks_array)
