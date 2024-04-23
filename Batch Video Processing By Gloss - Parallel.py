@@ -7,17 +7,36 @@ import pandas as pd
 from multiprocessing import Pool
 
 VIDEO_FOLDER = 'Sign Language Videos'
-CSV_FILE = 'CSVs and JSONs/video_ids_per_gloss.csv'
-NUM_VIDEOS_TO_PROCESS = 10
+CSV_FILE = 'CSVs and JSONs/Video_Ids_Final.csv'
+NUM_GLOSSES_TO_SELECT = 100
+NUM_VIDEOS_PER_GLOSS = 10
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
-def process_video(video_file):
-    video_path = os.path.join(VIDEO_FOLDER, video_file)
-    video_id = int(os.path.splitext(video_file)[0])
+labels_df = pd.read_csv(CSV_FILE)
 
-    labels_df = pd.read_csv(CSV_FILE)
+unique_glosses = labels_df['gloss'].unique()
+
+selected_videos = []
+selected_glosses = []
+
+while len(selected_glosses) < NUM_GLOSSES_TO_SELECT:
+    gloss = np.random.choice(unique_glosses, 1, replace=False)[0]
+    if gloss not in selected_glosses:
+        videos_for_gloss = labels_df[labels_df['gloss'] == gloss]['video_id'].tolist()
+        if len(videos_for_gloss) >= NUM_VIDEOS_PER_GLOSS:
+            selected_videos.extend(np.random.choice(videos_for_gloss, NUM_VIDEOS_PER_GLOSS, replace=False))
+            selected_glosses.append(gloss)
+
+print(f"Total selected videos: {len(selected_videos)}")
+
+def process_video(video_id):
+    video_file = str(video_id).zfill(5) + '.mp4'
+    video_path = os.path.join(VIDEO_FOLDER, video_file)
+    if not os.path.exists(video_path):
+        print(f"File does not exist: {video_path}")
+
     video_label = labels_df.loc[labels_df['video_id'] == video_id, 'gloss'].iloc[0]
 
     cap = cv2.VideoCapture(video_path)
@@ -39,19 +58,12 @@ def process_video(video_file):
             RGB_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             result = hands.process(RGB_frame)
 
-            landmarks_extracted = False
-
             if result.multi_hand_landmarks:
                 for hand_landmarks in result.multi_hand_landmarks:
                     mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
                     landmark_row = np.array(
                         [[landmark.x, landmark.y, landmark.z] for landmark in hand_landmarks.landmark])
-                    print("Shape of landmark_row:", landmark_row.shape)
                     video_landmarks.append(landmark_row)
-
-                cv2.imshow("capture image", frame)
-
-                print(f"Landmarks extracted for video {video_id}")
 
             if cv2.waitKey(1) == ord('q'):
                 break
@@ -62,15 +74,14 @@ def process_video(video_file):
     return video_landmarks, video_label
 
 if __name__ == '__main__':
-    video_files = np.random.choice(os.listdir(VIDEO_FOLDER), NUM_VIDEOS_TO_PROCESS, replace=False)
-    with Pool(processes=len(video_files)) as pool:
-        results = pool.map(process_video, video_files)
+
+    with Pool(processes=min(len(selected_videos), os.cpu_count())) as pool:
+        results = pool.map(process_video, selected_videos)
 
     all_videos_landmarks = [result[0] for result in results]
     all_labels = [result[1] for result in results]
 
     max_length = max(len(video_landmarks) for video_landmarks in all_videos_landmarks)
-
     for i in range(len(all_videos_landmarks)):
         current_length = len(all_videos_landmarks[i])
         padding_needed = max_length - current_length
@@ -80,9 +91,7 @@ if __name__ == '__main__':
     all_landmarks_array = np.array(all_videos_landmarks)
     all_labels_array = np.array(all_labels)
 
-    print(all_landmarks_array.shape)
+    np.save('Arrays/1000_landmarks.npy', all_landmarks_array)
+    np.save('Arrays/1000_labels.npy', all_labels_array)
 
-    np.save('Arrays/1200_landmarks.npy', all_landmarks_array)
-    np.save('Arrays/1200_labels.npy', all_labels_array)
-
-    print("Processing completed for 10 Sign Language Videos.")
+    print(f"Processing completed for {len(selected_videos)} Sign Language Videos.")

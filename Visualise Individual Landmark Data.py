@@ -27,3 +27,4 @@ for landmarks_frame in landmarks_array:
 
 out.release()
 cv2.destroyAllWindows()
+

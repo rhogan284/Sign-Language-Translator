@@ -79,7 +79,7 @@ all_labels_array = np.array(all_labels)
 
 print(all_landmarks_array.shape)
 
-np.save('Arrays/10_landmarks.npy', all_landmarks_array)
-np.save('Arrays/10_labels.npy', all_labels_array)
+# np.save('Arrays/10_landmarks.npy', all_landmarks_array)
+# np.save('Arrays/10_labels.npy', all_labels_array)
 
 print("Processing completed for 10 Sign Language Videos.")

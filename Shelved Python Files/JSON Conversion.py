@@ -17,6 +17,7 @@ def convert_json_to_csv(json_file, csv_file):
             print("Row " + str(row_num) + " complete")
             row_num += 1
 
-json_file = '../CSVs and JSONs/WLASL_v0.3.json'
-csv_file = '../CSVs and JSONs/Labels.csv'
+
+json_file = 'nslt_100.json'
+csv_file = '../test.csv'
 convert_json_to_csv(json_file, csv_file)
