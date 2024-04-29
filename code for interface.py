@@ -8,8 +8,6 @@ my_label = Label(root, text = "Welcome to Talk2TheHand")
 label_instr = Label (root, text = "Click the 'Begin' button to start the recording, and 'End' button to stop recording")
 
 
-def end_camera ():
-    cv2.waitKey == button_end
 def run_camera ():
     camera = cv2.VideoCapture(0)
 
@@ -56,7 +54,7 @@ def run_camera ():
 
         # the 'q' button is set as the quitting button you may use any desired button of your choice
         # need to tyr and change this q to the button_end
-        if cv2.waitKey() == ord(end_camera):
+        if cv2.waitKey() == ord('q'):
             break
 
     recordedVideo.release()
