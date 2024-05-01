@@ -63,7 +63,7 @@ def preprocess_video(clip_path, output_size=(224, 224), num_frames=64):
     return frames
 
 # Example usage
-clip_path = '../Top 100 Videos/00623.mp4'
+clip_path = '../Videos/Top 100 Videos/00623.mp4'
 output_path = 'Top 100 Videos Processed/output_video.mp4'
 processed_frames = preprocess_video(clip_path)
 play_and_save_video(processed_frames, output_path)

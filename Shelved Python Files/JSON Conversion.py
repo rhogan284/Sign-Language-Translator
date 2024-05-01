@@ -2,7 +2,6 @@ import json
 import pandas as pd
 import csv
 
-
 def convert_json_to_csv(json_file, csv_file):
     with open(json_file, 'r') as f:
         data = json.load(f)
@@ -21,3 +20,4 @@ def convert_json_to_csv(json_file, csv_file):
 json_file = 'nslt_100.json'
 csv_file = '../test.csv'
 convert_json_to_csv(json_file, csv_file)
+

@@ -14,7 +14,6 @@ class SignLanguageDataset(Dataset):
         self.video_frame = pd.read_csv(csv_file, dtype={'video_id': str})
         self.root_dir = root_dir
         self.transform = transform
-        # Create a mapping of glosses to indices
         self.label_map = {label: idx for idx, label in enumerate(self.video_frame['gloss'].unique())}
 
     def __len__(self):
@@ -24,7 +23,7 @@ class SignLanguageDataset(Dataset):
         video_id = str(self.video_frame.iloc[idx, 0])
         video_path = f'{self.root_dir}/{video_id}.mp4'
         label_str = self.video_frame.iloc[idx, 1]
-        label_idx = self.label_map[label_str]  # Convert label string to index
+        label_idx = self.label_map[label_str]
         frames = self.preprocess_video(video_path)
 
         if self.transform:
@@ -47,29 +46,23 @@ class SignLanguageDataset(Dataset):
 
         frames = np.array(frames)
 
-        # Check if frames is empty or has less frames than needed
         if frames.size == 0:
-            # If no frames were captured, create a dummy array with zeros
             frames = np.zeros((num_frames, *output_size, 3), dtype=np.float32)
         elif frames.shape[0] < num_frames:
-            # If captured frames are less than needed, create a padding of zeros
             padding = np.zeros((num_frames - frames.shape[0], *output_size, 3), dtype=frames.dtype)
             frames = np.concatenate((frames, padding), axis=0)
-
-        # Ensure the frames array has exactly num_frames frames
         frames = frames[:num_frames]
 
         frames = frames.astype('float32') / 255.0
-        frames = np.transpose(frames, (3, 0, 1, 2))  # Reorder to (C, D, H, W)
+        frames = np.transpose(frames, (3, 0, 1, 2))
         return frames
 
 
 def main():
-    # Initialize device, dataset, dataloader, model, criterion, and optimizer
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dataset = SignLanguageDataset(csv_file='../CSVs and JSONs/top_50_glosses.csv', root_dir='../Sign Language Videos')
-    dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=4)  # Added num_workers for parallel data loading
-    model = InceptionI3d(num_classes=50).to(device)
+    dataset = SignLanguageDataset(csv_file='../CSVs and JSONs/top_100_glosses.csv', root_dir='../Sign Language Videos')
+    dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=4)
+    model = InceptionI3d(num_classes=100).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 

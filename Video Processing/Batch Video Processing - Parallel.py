@@ -6,7 +6,7 @@ import json
 import pandas as pd
 from multiprocessing import Pool
 
-VIDEO_FOLDER = 'Sign Language Videos'
+VIDEO_FOLDER = "../Sign Language Videos/"
 CSV_FILE = '../CSVs and JSONs/video_ids_per_gloss.csv'
 NUM_VIDEOS_TO_PROCESS = 10
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     print(all_landmarks_array.shape)
 
-    np.save('../Arrays/1200_landmarks.npy', all_landmarks_array)
-    np.save('../Arrays/1200_labels.npy', all_labels_array)
+    # np.save('../Arrays/1200_landmarks.npy', all_landmarks_array)
+    # np.save('../Arrays/1200_labels.npy', all_labels_array)
 
     print("Processing completed for 10 Sign Language Videos.")

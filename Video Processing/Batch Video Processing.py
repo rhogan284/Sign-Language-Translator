@@ -6,7 +6,7 @@ import json
 import pandas as pd
 from multiprocessing import pool
 
-VIDEO_FOLDER = 'Sign Language Videos'
+VIDEO_FOLDER = "../Sign Language Videos/"
 CSV_FILE = '../CSVs and JSONs/video_ids_per_gloss.csv'
 NUM_VIDEOS_TO_PROCESS = 10
 
