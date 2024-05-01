@@ -1,71 +1,58 @@
 from tkinter import *
+from tkmacosx import Button
 import cv2
 
 root = Tk()
 root.title("Talk2TheHand Interface")
 
-my_label = Label(root, text = "Welcome to Talk2TheHand")
-label_instr = Label (root, text = "Click the 'Begin' button to start the recording, and 'End' button to stop recording")
+my_label = Label(root, text="Welcome to Talk2TheHand")
+label_instr = Label(root, text="Click the 'Begin' button to start the recording, and 'End' button to stop recording")
 
+camera = None
+recordedVideo = None
 
-def end_camera ():
-    cv2.waitKey == button_end
-def run_camera ():
+def end_camera():
+    global recordedVideo, camera
+    if recordedVideo is not None:
+        recordedVideo.release()
+    if camera is not None:
+        camera.release()
+    cv2.destroyAllWindows()
+
+def run_camera():
+    global camera, recordedVideo
     camera = cv2.VideoCapture(0)
 
-    # if statement that informs us whether the camera could open successfully or not
-    if (camera.isOpened()):
+    if camera.isOpened():
         print("The camera has opened successfully")
     else:
         print("Could not open camera")
 
-    # Need to determine what the frame width, height and rate is.
-    # This block of code defines the flags we need to reteiev
-    frameWidith = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frameWidth = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
     frameHeight = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frameRate = int(camera.get(cv2.CAP_PROP_FPS))
 
-    # Specify the video properties and desired video codec
-    # Also need to specify the FourCC 4-byte-code
-
-    # HEVC are used for .avi files
-    # MJPG are used for .mp4 files
-
-    fourccCode = cv2.VideoWriter_fourcc(*'HEVC')
-
-    # Specify video file name
+    fourccCode = cv2.VideoWriter_fourcc(*'mp4v')
     videoFileName = 'recordedVideo.mp4'
+    videoDimensions = (frameWidth, frameHeight)
 
-    # Define the recorded video dimensions - done by pulling from our previouslu defined objects
-    videoDimensions = (frameWidith, frameHeight)
+    recordedVideo = cv2.VideoWriter(videoFileName, fourccCode, frameRate, videoDimensions)
 
-    # Create a VideoWriter objects. Contains 3 inputs
-    recordedVideo = cv2.VideoWriter(videoFileName,
-                                    fourccCode,
-                                    frameRate,
-                                    videoDimensions)
-
-    while (True):
-        # Capture the video frame
-        # by frame
+    while True:
         success, frame = camera.read()
-
-        # Display the resulting frame
+        if not success:
+            break
+        frame = cv2.flip(frame, 1)
         cv2.imshow('Frame', frame)
         recordedVideo.write(frame)
 
-        # the 'q' button is set as the quitting button you may use any desired button of your choice
-        # need to tyr and change this q to the button_end
-        if cv2.waitKey() == ord(end_camera):
+        if cv2.waitKey(1) & 0xFF == ord('q'):  # Exit loop when 'q' is pressed
             break
 
-    recordedVideo.release()
-    camera.release()
-    cv2.destroyAllWindows()
 
+button_start = Button(root, text="Begin", bg="orange", fg="white", command=run_camera)
+button_end = Button(root, text="End", bg="orange", fg="white", command=end_camera)
 
-button_start = Button(root, text = "Begin", bg="orange", fg="white", command=run_camera)
-button_end = Button(root, text = "End", bg="orange", fg="white")
 my_label.pack()
 label_instr.pack()
 button_start.pack()
