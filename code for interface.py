@@ -1,16 +1,19 @@
 from tkinter import *
+from tkmacosx import Button
 import cv2
 
 root = Tk()
 root.title("Talk2TheHand Interface")
 
-my_label = Label(root, text = "Welcome to Talk2TheHand")
-label_instr = Label (root, text = "Click the 'Begin' button to start the recording, and 'End' button to stop recording")
+my_label = Label(root, text="Welcome to Talk2TheHand")
+label_instr = Label(root, text="Click the 'Begin' button to start the recording, and 'End' button to stop recording")
 
 
-def end_camera ():
+def end_camera():
     cv2.waitKey == button_end
-def run_camera ():
+
+
+def run_camera():
     camera = cv2.VideoCapture(0)
 
     # if statement that informs us whether the camera could open successfully or not
@@ -64,8 +67,8 @@ def run_camera ():
     cv2.destroyAllWindows()
 
 
-button_start = Button(root, text = "Begin", bg="orange", fg="white", command=run_camera)
-button_end = Button(root, text = "End", bg="orange", fg="white")
+button_start = Button(root, text="Begin", bg="orange", fg="white", command=run_camera)
+button_end = Button(root, text="End", bg="orange", fg="white")
 my_label.pack()
 label_instr.pack()
 button_start.pack()
