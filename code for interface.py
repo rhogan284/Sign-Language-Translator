@@ -22,7 +22,7 @@ label_instr = Label(root, text="Click the 'Begin' button to start the recording,
 camera = None
 recordedVideo = None
 running = False
-video_frame_label = Label(root, bg=bg_color)  # Label to display the video frames
+video_frame_label = Label(root, bg=bg_color)
 
 def clear_window():
     for widget in root.winfo_children():
