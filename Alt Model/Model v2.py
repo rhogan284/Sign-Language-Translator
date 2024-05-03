@@ -86,5 +86,5 @@ train_gen = generator(video_folder, csv_path, batch_size, frame_count)
 # Build and train model
 model = build_model()
 model.summary()
-model.fit(train_gen, steps_per_epoch=100, epochs=10, verbose=1)  # Adjust steps_per_epoch as needed
+model.fit(train_gen, steps_per_epoch=100, epochs=10, verbose=1)
 
