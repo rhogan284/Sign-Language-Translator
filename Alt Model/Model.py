@@ -11,25 +11,20 @@ import pandas as pd
 import cv2
 import os
 
-# Constants
 FRAME_WIDTH = 256
 FRAME_HEIGHT = 256
-CHANNELS = 3  # RGB channels
+CHANNELS = 3
 MOBILENET_WEIGHTS_PATH = 'mobilenet_v2_weights_tf_dim_ordering_tf_kernels_1.0_224_no_top.h5'
 
 labels_path = 'top_50_glosses.csv'
 labels_df = pd.read_csv(labels_path, dtype={'video_id': str})
 
-# Encode the labels
 label_encoder = LabelEncoder()
 integer_encoded = label_encoder.fit_transform(labels_df['gloss'])
 labels_one_hot = to_categorical(integer_encoded)
 
-# Path to the video folder
-video_folder = 'Top 50 videos processed'  # Update this path accordingly
+video_folder = 'Top 50 videos processed'
 
-# Function to load and preprocess video frames
-# Function to load and preprocess video frames
 def load_video(video_id, frame_count=30):
     video_path = os.path.join(video_folder, f'{video_id}.mp4')
     cap = cv2.VideoCapture(video_path)
@@ -51,12 +46,8 @@ def load_video(video_id, frame_count=30):
     return np.array(frames)
 
 
-# Load and preprocess all videos as a list
 video_data = [load_video(vid) for vid in labels_df['video_id']]
-
 X_train, X_test, y_train, y_test = train_test_split(video_data, labels_one_hot, test_size=0.2, random_state=42)
-
-print("Data Loaded")
 
 def video_batch_generator(video_data, labels, batch_size=32):
     while True:
@@ -69,22 +60,17 @@ def video_batch_generator(video_data, labels, batch_size=32):
             yield np.array(padded_videos), batch_labels
 
 
-
-# Load the pre-trained MobileNetV2 model without the top layer
 base_model = MobileNetV2(weights=None, include_top=False,
                          input_shape=(FRAME_HEIGHT, FRAME_WIDTH, CHANNELS))
 base_model.load_weights(MOBILENET_WEIGHTS_PATH)
 
-# Freeze the layers of the base model to prevent them from being trained
 for layer in base_model.layers:
     layer.trainable = False
 
-# Model architecture
 model = Sequential([
     InputLayer(input_shape=(None, FRAME_HEIGHT, FRAME_WIDTH, CHANNELS), dtype=tf.float32, ragged=True),
     TimeDistributed(base_model),
     TimeDistributed(tf.keras.layers.GlobalAveragePooling2D()),
-
     LSTM(256, return_sequences=False),
     tf.keras.layers.Dropout(0.5),
     Dense(50, activation='softmax')
@@ -94,28 +80,16 @@ model.compile(optimizer=Adam(learning_rate=0.001),
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
-print("Model Compiled")
-# Configure the model's fit function to use the generator
 train_generator = video_batch_generator(X_train, y_train)
 validation_generator = video_batch_generator(X_test, y_test)
-print("Model generator configured")
-
-# Determine steps per epoch based on the batch size
 steps_per_epoch = len(X_train) // 32
 validation_steps = len(X_test) // 32
-
 test_gen = video_batch_generator(X_train, y_train, batch_size=1)
 samples, labels = next(test_gen)
-print("Batch shape:", samples.shape)  # Should now correctly show ragged dimensions
-print("Labels shape:", labels.shape)
-
-# Try running one training step
 outputs = model(samples, training=True)
-print("Model output shape:", outputs.shape)
 
-# Fit the model
 history = model.fit(train_generator,
                     validation_data=validation_generator,
                     steps_per_epoch=steps_per_epoch,
                     validation_steps=validation_steps,
-                    epochs=10, verbose=1)  # You can adjust the number of epochs
+                    epochs=10, verbose=1)

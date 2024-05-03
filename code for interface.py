@@ -22,6 +22,8 @@ label_instr = Label(root, text="Click the 'Begin' button to start the recording,
 camera = None
 recordedVideo = None
 running = False
+video_frame_width = 1280
+video_frame_height = 720
 video_frame_label = Label(root, bg=bg_color)
 
 def clear_window():
@@ -62,7 +64,7 @@ def run_camera():
         frameHeight = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
         frameRate = int(camera.get(cv2.CAP_PROP_FPS))
         fourccCode = cv2.VideoWriter_fourcc(*'mp4v')
-        videoFileName = 'recordedVideo.mp4'
+        videoFileName = 'test.mp4'
         videoDimensions = (frameWidth, frameHeight)
         recordedVideo = cv2.VideoWriter(videoFileName, fourccCode, frameRate, videoDimensions)
     read_frame()
@@ -72,6 +74,7 @@ def read_frame():
         success, frame = camera.read()
         if success:
             frame = cv2.flip(frame, 1)
+            frame = cv2.resize(frame, (video_frame_width, video_frame_height))
             image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(image)
             image_tk = ImageTk.PhotoImage(image=image)
@@ -81,6 +84,7 @@ def read_frame():
         root.after(10, read_frame)
     else:
         release_resources()
+
 
 button_frame = Frame(root, bg=bg_color)
 button_start = Button(button_frame, text="Begin", bg=btn_color, fg=text_color, font=font_style, borderless=1, command=run_camera)
