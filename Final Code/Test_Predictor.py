@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from pytorch_i3d import InceptionI3d
 import cv2
 import numpy as np
-import os
+
 
 def preprocess_video(video_path, target_height=400, target_width=720):
     vidcap = cv2.VideoCapture(video_path)

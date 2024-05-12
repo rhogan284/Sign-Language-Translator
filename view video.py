@@ -1,6 +1,6 @@
 import cv2
 
-video_path = 'recordedVideo.mp4'
+video_path = 'video.mp4'
 
 cap = cv2.VideoCapture(video_path)
 
