@@ -4,7 +4,7 @@ import cv2
 from PIL import Image, ImageTk
 import torch
 import torch.nn.functional as F
-from pytorch_i3d import InceptionI3d
+from I3D.pytorch_i3d import InceptionI3d
 from Predictor import preprocess_video
 import threading
 
@@ -39,7 +39,7 @@ i3d.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 i3d.eval()
 
 class_labels = []
-with open("../CSVs and JSONs/wlasl_class_list_100.txt", 'r') as f:
+with open("wlasl_class_list_100.txt", 'r') as f:
     for line in f:
         _, label = line.strip().split('\t')
         class_labels.append(label)

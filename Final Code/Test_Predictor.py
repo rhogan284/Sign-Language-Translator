@@ -35,7 +35,7 @@ def preprocess_video(video_path, target_height=400, target_width=720):
 video_path = "../Sign Language Videos/05644.mp4"
 frames = preprocess_video(video_path)
 
-model_path = '../Final Code/archived/asl100/FINAL_nslt_100_iters=896_top1=65.89_top5=84.11_top10=89.92.pt'
+model_path = 'archived/asl100/FINAL_nslt_100_iters=896_top1=65.89_top5=84.11_top10=89.92.pt'
 num_classes = 100
 i3d = InceptionI3d(num_classes)
 i3d.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
@@ -53,7 +53,7 @@ else:
     print(f"Could not load video frames from: {video_path}")
 
 class_labels = []
-with open("../CSVs and JSONs/wlasl_class_list_100.txt", 'r') as f:
+with open("wlasl_class_list_100.txt", 'r') as f:
     for line in f:
         _, label = line.strip().split('\t')
         class_labels.append(label)

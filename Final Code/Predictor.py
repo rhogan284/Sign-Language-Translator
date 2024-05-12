@@ -40,7 +40,7 @@ def process_video(video_path):
         probabilities = F.softmax(reduced_outputs, dim=1)
         topk_values, topk_indices = torch.topk(probabilities, 10, dim=1, largest=True, sorted=True)
         class_labels = []
-        with open("../CSVs and JSONs/wlasl_class_list_100.txt", 'r') as f:
+        with open("wlasl_class_list_100.txt", 'r') as f:
             for line in f:
                 _, label = line.strip().split('\t')
                 class_labels.append(label)
