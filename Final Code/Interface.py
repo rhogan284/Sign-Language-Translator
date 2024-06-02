@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from I3D.pytorch_i3d import InceptionI3d
 from Predictor import preprocess_video
 import threading
+import mediapipe as mp
 
 root = Tk()
 root.title("Talk2TheHand Interface")
@@ -29,6 +30,10 @@ video_frame_width = 1280
 video_frame_height = 720
 video_frame_label = Label(root, bg=bg_color)
 
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+mp_drawing = mp.solutions.drawing_utils
+
 model_path = '../Final Code/archived/asl100/FINAL_nslt_100_iters=896_top1=65.89_top5=84.11_top10=89.92.pt'
 num_classes = 100
 i3d = InceptionI3d(num_classes)
@@ -41,15 +46,18 @@ with open("capitalized_wlasl_class_list_100.txt", 'r') as f:
         _, label = line.strip().split('\t')
         class_labels.append(label)
 
+
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
+
 
 def reset_interface():
     clear_window()
     global camera, recordedVideo, running
     release_resources()
     initialize_gui()
+
 
 def exit_interface():
     global root
@@ -102,6 +110,7 @@ def process_video():
     predictions, probabilities = run_prediction(frames)
     display_prediction_window(predictions, probabilities)
 
+
 def end_camera():
     global running, recordedVideo
     running = False
@@ -111,6 +120,7 @@ def end_camera():
     release_resources()
     show_processing_screen()
     threading.Thread(target=process_video).start()
+
 
 def release_resources():
     global recordedVideo, camera
@@ -122,6 +132,7 @@ def release_resources():
         camera = None
     cv2.destroyAllWindows()
 
+
 def run_prediction(frames):
     with torch.no_grad():
         outputs = i3d(frames)
@@ -129,6 +140,7 @@ def run_prediction(frames):
         topk_values, topk_indices = torch.topk(probabilities, 10, dim=1, largest=True, sorted=True)
         top_predictions = [class_labels[idx] for idx in topk_indices[0].tolist()]
     return top_predictions, topk_values[0]
+
 
 def show_processing_screen():
     global button_reset, button_exit
@@ -154,6 +166,7 @@ def show_processing_screen():
     processing_label = Label(root, text="Processing video...", bg=bg_color, fg=text_color, font=("Arial", 16, "bold"))
     processing_label.pack(expand=True)
 
+
 def display_prediction_window(predictions, probabilities):
     global button_reset, button_exit
     clear_window()
@@ -175,12 +188,15 @@ def display_prediction_window(predictions, probabilities):
     right_space = Frame(top_frame, width=20, bg=bg_color)
     right_space.pack(side='right', fill='y')
 
-    prediction_label = Label(root, text="Top 10 Predictions and their Probabilities:", bg=bg_color, fg=text_color, font=("Arial", 14, "bold"))
+    prediction_label = Label(root, text="Top 10 Predictions and their Probabilities:", bg=bg_color, fg=text_color,
+                             font=("Arial", 14, "bold"))
     prediction_label.pack(pady=10)
 
     for i, (prob, pred) in enumerate(zip(probabilities, predictions)):
-        label = Label(root, text=f"{i+1}: {pred} with probability {prob.item():.4f}", bg=bg_color, fg=text_color, font=font_style)
+        label = Label(root, text=f"{i + 1}: {pred} with probability {prob.item():.4f}", bg=bg_color, fg=text_color,
+                      font=font_style)
         label.pack()
+
 
 def run_camera():
     global camera, recordedVideo, running
@@ -200,11 +216,18 @@ def run_camera():
         recordedVideo = cv2.VideoWriter(videoFileName, fourccCode, frameRate, videoDimensions)
     read_frame()
 
+
 def read_frame():
+    global hands, mp_drawing
     if running:
         success, frame = camera.read()
         if success:
             frame = cv2.flip(frame, 1)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = hands.process(frame_rgb)
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
             image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(image)
             image_tk = ImageTk.PhotoImage(image=image)
